@@ -1,0 +1,2 @@
+?package(knot):needs="X11" section="Applications/Education"\
+  title="Knot" command="/usr/bin/knot"

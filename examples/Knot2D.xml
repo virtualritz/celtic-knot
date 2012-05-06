@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<knot>
+	<vis>
+		<Property id="FullScreen" type="bool">0</Property>
+		<Property id="ClearWhite" type="bool">0</Property>
+		<Property id="Debug" type="bool">0</Property>
+		<Property id="ViewRadius" type="float">14.000000</Property>
+		<Property id="ViewX" type="float">0.000000</Property>
+		<Property id="ViewY" type="float">0.000000</Property>
+		<Property id="ViewZ" type="float">1.000000</Property>
+		<Property id="ViewXNormal" type="float">0.000000</Property>
+		<Property id="ViewYNormal" type="float">1.000000</Property>
+		<Property id="ViewZNormal" type="float">0.000000</Property>
+		<Property id="Dimensions" type="int">2</Property>
+		<celtic>
+			<Property id="Seed" type="int">5124</Property>
+			<Property id="Width" type="int">5</Property>
+			<Property id="Height" type="int">6</Property>
+			<Property id="TileSizeX" type="float">3.000000</Property>
+			<Property id="TileSizeY" type="float">3.000000</Property>
+			<Property id="Weirdness" type="float">0.200000</Property>
+			<Property id="Orientation" type="int">1</Property>
+			<Property id="Symmetrical" type="bool">1</Property>
+			<render>
+				<Property id="ColourSeed" type="int">92</Property>
+				<Property id="LineInsetX" type="float">0.500000</Property>
+				<Property id="LineInsetY" type="float">0.500000</Property>
+				<Property id="LineInsetZ" type="float">0.500000</Property>
+				<Property id="Thickness" type="float">0.300000</Property>
+				<Property id="WeaveHeight" type="float">0.300000</Property>
+			</render>
+		</celtic>
+	</vis>
+</knot>

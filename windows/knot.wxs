@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+  <Product Name='Knot' Id='373DE960-214C-4D4F-91F4-755F8D296FC2'
+    UpgradeCode='C0A0DC25-D112-43B6-86DA-1C6BC09A8246'
+    Language='1033' Codepage='1252' Version='$(env.productversion)' Manufacturer='David Llewellyn-Jones'>
+
+    <Package Id='*' Keywords='Installer'
+      Description="Celtic Knot Installer"
+      Comments='Knot is released under an MIT-style licence. See http://www.flypig.co.uk/?page=knot for more info.'
+      Manufacturer='David Llewellyn-Jones'
+      InstallerVersion='100' 
+	  Languages='1033' 
+	  Compressed='yes' 
+	  SummaryCodepage='1252' 
+	  InstallScope="perMachine"
+	  />
+    <Media Id='1' Cabinet='Knot.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="Knot Installation [1]" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='ProgramFilesFolder' Name='PFiles'>
+        <Directory Id='INSTALLDIR' Name='Knot'>
+          <Component Id='MainExecutable' Guid='7DED86E2-521F-4398-B999-542F91B54A7A'>
+            <File Id='KnotEXE' Name='knot.exe' DiskId='1'
+              Source='knot.exe' Vital='yes'>
+            </File>
+            <RemoveFile Id='Settings' On='uninstall' Name='.knot.xml' />
+          </Component>
+
+          <Directory Id='KnotExamplesFolder' Name='examples'>
+            <Component Id='ExampleFiles' Guid='98523FFF-A3A5-4D67-9EAE-27E386137197'>
+              <File Id='ExampleCelticKnot2D' Name='Knot2D.xml' DiskId='1' Source='examples\Knot2D.xml' />
+              <File Id='ExampleCelticKnot3D' Name='Knot3D.xml' DiskId='1' Source='examples\Knot3D.xml' />
+            </Component>
+            <Component Id='StartMenuExampleShortcuts' Guid='6C48F5E9-EACA-4DCE-BCE9-12F53C9182AA'>
+              <Shortcut Id="StartMenuExamples" Directory="ProgramMenuDir" Name="Examples" 
+              WorkingDirectory='INSTALLDIR' />
+              <Condition>SHORTCUT_STARTMENU</Condition>
+              <CreateFolder/>
+              <RemoveFolder Id="ProgramMenuDirExamples" Directory="ProgramMenuDir" On="uninstall"/>
+			  <RegistryValue Root="HKCU" Key="Software\Knot" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+          </Directory>
+
+          <Component Id='StartMenuShortcuts' Guid='A9CE5353-BEA4-4706-87B8-035985AB7441'>
+            <Shortcut Id="StartMenuKnot" Directory="ProgramMenuDir" Name="Knot" 
+              WorkingDirectory='INSTALLDIR'
+              Target="[!KnotEXE]"
+              Icon="knot.ico" IconIndex="0" />
+            <Condition>SHORTCUT_STARTMENU</Condition>
+            <CreateFolder/>
+            <RemoveFolder Id="ProgramMenuDirKnot" Directory="ProgramMenuDir" On="uninstall"/>
+			<RegistryValue Root="HKCU" Key="Software\Knot" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+          </Component>
+
+          <Component Id='DesktopShortcuts' Guid='616B5ACC-4B02-4225-A291-0CEDFFF9BE20'>
+            <Shortcut Id="DesktopKnot" Directory="DesktopFolder" Name="Knot" 
+              WorkingDirectory='INSTALLDIR'
+              Target="[!KnotEXE]"
+              Icon="knot.ico" IconIndex="0" />
+            <Condition>SHORTCUT_DESKTOP</Condition>
+		    <CreateFolder/>
+			<RegistryValue Root="HKCU" Key="Software\Knot" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+          </Component>
+
+          <Directory Id='KnotAssetsFolder' Name='assets'>
+            <Component Id='KnotAssets' Guid='10E9245D-C10F-479E-8772-82DCB79700B1'>
+              <File Id='KnotGlade' Name='application.glade' DiskId='1' Source='assets\application.glade' Vital='yes' />
+              <File Id='KnotVertex' Name='vertex.vs' DiskId='1' Source='assets\vertex.vs' Vital='yes' />
+              <File Id='KnotFragment' Name='fragment.fs' DiskId='1' Source='assets\fragment.fs' Vital='yes' />
+            </Component>
+          </Directory>
+          
+          <Component Id='FreeGlutLibrary' Guid='87186115-F8AD-4961-BD03-EB22D0AB906D'>
+            <File Id='freeglutDLL' Name='freeglut.dll' DiskId='1' Source='freeglut.dll' />
+          </Component>
+
+          <Component Id='InfoFiles' Guid='34BFF34C-6EA4-44E6-96B0-8503D9234761'>
+            <File Id='ReadMe' Name='README' DiskId='1' Source='README' />
+            <File Id='News' Name='NEWS' DiskId='1' Source='NEWS' />
+            <File Id='Install' Name='INSTALL' DiskId='1' Source='INSTALL' />
+            <File Id='Authors' Name='AUTHORS' DiskId='1' Source='AUTHORS' />
+            <File Id='Copying' Name='COPYING' DiskId='1' Source='COPYING' />
+          </Component>
+
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="ProgramMenuDir" Name='Knot' />
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <Feature Id='Complete' Title="Knot" Description="The Celtic Knot 2D and 3D Celtic knot rendering package" Display="expand" Level='1' ConfigurableDirectory='INSTALLDIR'>
+      <Feature Id='MainProgram' Title="Program" Description="The main executable" Level='1'>
+        <ComponentRef Id='MainExecutable' />
+        <ComponentRef Id='KnotAssets' />
+        <ComponentRef Id='FreeGlutLibrary' />
+      </Feature>
+
+      <Feature Id='StartMenu' Title="Start Menu Shortcuts" Description="Shortcuts to the program added to your Start menu" Level='1'>
+        <ComponentRef Id='StartMenuShortcuts' />
+        <ComponentRef Id='StartMenuExampleShortcuts' />
+      </Feature>
+
+      <Feature Id='Desktop' Title="Desktop Shortcut" Description="Shortcuts to the program added to your Desktop" Level='1'>
+        <ComponentRef Id='DesktopShortcuts' />
+      </Feature>
+      
+      <Feature Id='Info' Title='Information' Description='ReadMe, licence and basic documentation.' Level='1'>
+        <ComponentRef Id='InfoFiles' />
+      </Feature>
+      <Feature Id='Examples' Title='Examples' Description='Example function files that can be loaded into Knot.' Level='1'>
+        <ComponentRef Id='ExampleFiles' />
+      </Feature>
+    </Feature>
+
+    <Property Id="WIXUI_INSTALLDIR">INSTALLDIR</Property>
+    <Property Id="SHORTCUT_DESKTOP">1</Property>
+    <Property Id="SHORTCUT_STARTMENU">1</Property>
+    <UIRef Id="WixUI_Knot" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <Icon Id="knot.ico" SourceFile="knot.ico" />
+  </Product>
+</Wix>
+
+
+
+
+
+
