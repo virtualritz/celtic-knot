@@ -1,7 +1,7 @@
 Source: knot
 Section: math
 Priority: extra
-Maintainer: David Llewellyn-Jones <david-web02@flypig.co.uk>
+Maintainer: David Llewellyn-Jones <david@flypig.co.uk>
 Build-Depends: debhelper (>= 7), autotools-dev, libgtkglext1-dev, libglu1-mesa-dev, freeglut3-dev, libgtk2.0-dev, libpango1.0-dev, libglib2.0-dev, libcairo2-dev, libfreetype6-dev, zlib1g-dev, libfontconfig1-dev, libglade2-dev, libxml2-dev, pkg-config
 Standards-Version: 3.8.0
 

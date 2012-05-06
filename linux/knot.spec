@@ -1,6 +1,6 @@
 Summary: Knot
 Name: knot
-Version: 0.1.0
+Version: 0.1.1
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: MIT

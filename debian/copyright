@@ -1,9 +1,9 @@
-This package was debianized by David Llewellyn-Jones <david-web02@flypig.co.uk> on
+This package was debianized by David Llewellyn-Jones <david@flypig.co.uk> on
 Sat, 27 Jun 2009 20:53:57 +0100.
 
 It was downloaded from http://www.flypig.co.uk
 
-Upstream Author: David Llewellyn-Jones <david-web02@flypig.co.uk>
+Upstream Author: David Llewellyn-Jones <david@flypig.co.uk>
 
 Copyright:
 
@@ -29,6 +29,6 @@ License:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 
-The Debian packaging is copyright 2009, David Llewellyn-Jones <david-web02@flypig.co.uk> and
+The Debian packaging is copyright 2009, David Llewellyn-Jones <@flypig.co.uk> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL-2'.
 

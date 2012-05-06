@@ -1,5 +1,11 @@
+knot (0.1.1-1) unstable; urgency=low
+
+  * Code moved to SourceForge
+
+ -- David Llewellyn-Jones <david@flypig.co.uk>  Sun, 6 May 2012 15:57:00 +0100
+
 knot (0.1.0-1) unstable; urgency=low
 
   * Initial release
 
- -- David Llewellyn-Jones <david-web02@flypig.co.uk>  Sat, 27 Jun 2009 20:53:57 +0100
+ -- David Llewellyn-Jones <david@flypig.co.uk>  Sat, 27 Jun 2009 20:53:57 +0100
