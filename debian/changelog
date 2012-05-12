@@ -1,3 +1,9 @@
+knot (0.1.2-1) unstable; urgency=low
+
+  * Added option to export image as PNG file.
+
+ -- David Llewellyn-Jones <david@flypig.co.uk>  Sat, 12 May 2012 23:57:00 +0100
+
 knot (0.1.1-1) unstable; urgency=low
 
   * Code moved to SourceForge
