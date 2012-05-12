@@ -73,6 +73,9 @@ void LoadSettingsStartVis (SettingsPersist * psSettingsData, VisPersist * psVisD
 void LoadSettingsEndVis (SettingsPersist * psSettingsData, VisPersist * psVisData);
 CelticPersist * GetCelticData (VisPersist * psVisData);
 unsigned int GetRandomSeed ();
+bool ExportBitmap (char const * szFilename, char const * szType, int nHeight, int nWidth, VisPersist * psVisData);
+int GetScreenHeight (VisPersist * psVisData);
+int GetScreenWidth (VisPersist * psVisData);
 
 ///////////////////////////////////////////////////////////////////
 // Function definitions

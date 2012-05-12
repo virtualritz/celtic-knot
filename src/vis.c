@@ -164,6 +164,7 @@ void VisLoadProperty (SETTINGTYPE const eType, char const * szName, void const *
 void VisLoadSectionStart (char const * szName, void * psData, SettingsPersist * psSettingsData);
 void VisLoadSectionEnd (char const * szName, void * psData, SettingsPersist * psSettingsData);
 void InitShaders (VisPersist * psVisData);
+void FreePixelBuffer (guchar * pixels, gpointer data);
 
 ///////////////////////////////////////////////////////////////////
 // Function definitions
@@ -562,6 +563,14 @@ void Reshape (int nWidth, int nHeight, VisPersist * psVisData) {
 	gluPerspective (60, (float)nWidth / (float)nHeight, 1, 100);
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity ();
+}
+
+int GetScreenHeight (VisPersist * psVisData) {
+	return psVisData->nScreenHeight;
+}
+
+int GetScreenWidth (VisPersist * psVisData) {
+	return psVisData->nScreenWidth;
 }
 
 void Redraw (VisPersist * psVisData) {
@@ -1054,6 +1063,127 @@ void VisLoadSectionEnd (char const * szName, void * psData, SettingsPersist * ps
 
 CelticPersist * GetCelticData (VisPersist * psVisData) {
 	return psVisData->psCelticData;
+}
+
+// Callback for freeing the pixel buffer data
+void FreePixelBuffer (guchar * pixels, gpointer data) {
+	// Free the data
+	g_free (pixels);
+}
+
+bool ExportBitmap (char const * szFilename, char const * szType, int nHeight, int nWidth, VisPersist * psVisData) {
+	bool boSuccess;
+	int nScreenWidth;
+	int nScreenHeight;
+	GLuint uTexture;
+	GLuint uRenderBuffer;
+	GLuint uFrameBuffer;
+	unsigned char * psData;
+	GError * psError = NULL;
+	GdkPixbuf * psImage;
+	int nX;
+	int nY;
+	unsigned char cPixel;
+	GLenum eSuccess;
+
+	boSuccess = FALSE;
+
+	nScreenWidth = psVisData->nScreenWidth;
+	nScreenHeight = psVisData->nScreenHeight;
+	Reshape (nWidth, nHeight, psVisData);
+
+	// Create texture to store the bitmap knot image to
+	glGenTextures (1, & uTexture);
+	glBindTexture(GL_TEXTURE_2D, uTexture);
+	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glBindTexture (GL_TEXTURE_2D, 0);
+
+	// Create the render buffer to use as a depth buffer
+	glGenRenderbuffers (1, & uRenderBuffer);
+	glBindRenderbuffer (GL_RENDERBUFFER, uRenderBuffer);
+	glRenderbufferStorage (GL_RENDERBUFFER, GL_DEPTH_COMPONENT, nWidth, nHeight);
+	glBindRenderbuffer (GL_RENDERBUFFER, 0);
+
+	// Create a framebuffer object to attach the texture and render buffer to
+	glGenFramebuffers (1, & uFrameBuffer);
+	glBindFramebuffer (GL_FRAMEBUFFER, uFrameBuffer);
+
+	// Attach the texture (colour) and render buffer (depth)
+	glFramebufferTexture2D (GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, uTexture, 0);
+	glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, uRenderBuffer);
+
+	// Check if everything worked
+	eSuccess = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+	if (eSuccess == GL_FRAMEBUFFER_COMPLETE) {
+		// Use screen buffer
+		glBindFramebuffer (GL_FRAMEBUFFER, 0);
+
+		// Render to the framebuffer
+		glBindFramebuffer (GL_FRAMEBUFFER, uFrameBuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Draw the knot
+		Redraw (psVisData);
+
+		// Unbind frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// Bind the texture so we can extract the data and save it to disk
+		glBindTexture (GL_TEXTURE_2D, uTexture);
+
+		// Create some space to store the texture data in
+		psData = g_new (unsigned char, (nHeight * nWidth * 4));
+
+		// Extract the data from the texture
+		glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		glGetTexImage (GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, psData);
+
+		// We're done with the texture
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Flip the image
+		for (nY = 0; nY < (nHeight / 2); nY++) {
+			for (nX = 0; nX < (nWidth * 4); nX++) {
+				cPixel = psData[(nY * nWidth * 4) + nX];
+				psData[(nY * nWidth * 4) + nX] = psData[(((nHeight - 1) * nWidth * 4) - (nY * nWidth * 4)) + nX];
+				psData[(((nHeight - 1) * nWidth * 4) - (nY * nWidth * 4)) + nX] = cPixel;
+			}
+		}
+
+		// Convert the texture data into a Pixel Buffer object
+		psImage = gdk_pixbuf_new_from_data (psData, GDK_COLORSPACE_RGB, TRUE, 8, nWidth, nHeight, nWidth * 4, FreePixelBuffer, NULL);
+		if (psImage) {
+			// Save the image to disk
+			psError = NULL;
+			gdk_pixbuf_save (psImage, szFilename, szType, & psError, NULL);
+			if (psError) {
+				printf ("%s", psError->message);
+			}
+			else {
+				boSuccess = TRUE;
+			}
+		}
+		g_object_unref (G_OBJECT (psImage));
+		psData = NULL;
+	}
+
+	// Tidy things up
+	glDeleteTextures (1, & uTexture);
+	uTexture = 0;
+	glDeleteFramebuffers (1, & uFrameBuffer);
+	uFrameBuffer = 0;
+	glDeleteRenderbuffers (1, & uRenderBuffer);
+	uRenderBuffer = 0;
+
+	// Ensure the screen image gets rendered at the correct size
+	Reshape (nScreenWidth, nScreenHeight, psVisData);
+
+	return boSuccess;
 }
 
 

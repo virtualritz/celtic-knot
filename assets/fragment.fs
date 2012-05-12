@@ -130,13 +130,14 @@ void main () {
 	// Calculate dot product between normal and light direction
 	fNDotL = max (dot (vNormal, normalize (vDir)), 0.0);
 
-	if (false) //(fNDotL > 0.0) {
+	if (fNDotL > 0.0) {
 		fAttenuation = 1.0 / (gl_LightSource[0].constantAttenuation + gl_LightSource[0].linearAttenuation * fDist + gl_LightSource[0].quadraticAttenuation * fDist * fDist);
 		vColour += fAttenuation * (vDiffuse * fNDotL + vAmbient);
 
 		vHalf = normalize (vHalfVector);
 		fNDotHV = max (dot (vNormal, vHalf), 0.0);
 		vColour += fAttenuation * gl_FrontMaterial.specular * gl_LightSource[0].specular * pow (fNDotHV, gl_FrontMaterial.shininess);
+		/*
 		vRGB = vColour.rgb;
 		vHSV = RGBtoHSV (vRGB);
 		vHSV[0] = floor (vHSV[0] * fHueSteps) / fHueSteps;
@@ -144,6 +145,7 @@ void main () {
 		vHSV[2] = floor (vHSV[2] * fSteps) / fSteps;
 		vRGB = HSVtoRGB (vHSV);
 		vColour.rgb = vRGB;
+		*/
 	}
 
 	gl_FragColor = vColour;

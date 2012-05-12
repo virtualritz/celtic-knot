@@ -39,7 +39,8 @@
 #define RADIUS_SCROLL (1)
 #define DEFAULT_FILENAME "Knot.xml"
 #define DEFAULT_SETTINGS_FILE ".knot.xml"
-#define DEFAULT_EXPORTNAME "Model.ply"
+#define DEFAULT_EXPORTMODELNAME "Model.ply"
+#define DEFAULT_EXPORTBITMAPNAME "Bitmap.png"
 
 ///////////////////////////////////////////////////////////////////
 // Structures and enumerations
@@ -58,10 +59,23 @@ struct _MainPersist {
   GString * szFilename;
   bool boFolderSet;
   GString * szFolder;
-  bool boExported;
-  GString * szExportName;
+  bool boExportedModel;
+  GString * szExportModelName;
   bool boBinary;
+  bool boExportedBitmap;
+  GString * szExportBitmapName;
+  bool boBitmapScreenDimensions;
+  int nBitmapWidth;
+  int nBitmapHeight;
 };
+
+typedef struct _BitmapSize {
+  GtkWidget * psWindowSize;
+  GtkWidget * psWidth;
+  GtkWidget * psHeight;
+  GtkWidget * psWidthLabel;
+  GtkWidget * psHeightLabel;
+} BitmapSize;
 
 ///////////////////////////////////////////////////////////////////
 // Global variables
@@ -108,13 +122,16 @@ static gboolean ConfigureGenerateSeed (GtkWidget * psWidget, gpointer psData);
 static gboolean ConfigureGenerateColourSeed (GtkWidget * psWidget, gpointer psData);
 bool LoadFile (char const * szFilename, MainPersist * psMainData);
 bool SaveFile (char const * szFilename, MainPersist * psMainData);
-bool ExportFile (char const * szFilename, MainPersist * psMainData);
+bool ExportModelFile (char const * szFilename, MainPersist * psMainData);
+bool ExportBitmapFile (char const * szFilename, int nHeight, int nWidth, MainPersist * psMainData);
 gchar * GetTitleFilename (char const * szFilename);
 void SetMainWindowTitle (char const * szFilename, MainPersist * psMainData);
 static gboolean LoadFilePress (GtkWidget * psWidget, gpointer psData);
 static gboolean SaveFilePress (GtkWidget * psWidget, gpointer psData);
-static gboolean ExportPress (GtkWidget * psWidget, gpointer psData);
+static gboolean ExportModelPress (GtkWidget * psWidget, gpointer psData);
+static gboolean ExportBitmapPress (GtkWidget * psWidget, gpointer psData);
 void PauseAnimation (bool boPause, MainPersist * psMainData);
+static gboolean BitmapWindowSizeToggle (GtkWidget * psWidget, gpointer psData);
 
 ///////////////////////////////////////////////////////////////////
 // Function definitions
@@ -134,9 +151,14 @@ MainPersist * NewMainPersist (void) {
   psMainData->szFilename = g_string_new (DEFAULT_FILENAME);
   psMainData->boFolderSet = FALSE;
   psMainData->szFolder = g_string_new ("");
-  psMainData->boExported = FALSE;
-  psMainData->szExportName = g_string_new (DEFAULT_EXPORTNAME);
+  psMainData->boExportedModel = FALSE;
+  psMainData->szExportModelName = g_string_new (DEFAULT_EXPORTMODELNAME);
   psMainData->boBinary = TRUE;
+  psMainData->boExportedBitmap = FALSE;
+  psMainData->szExportBitmapName = g_string_new (DEFAULT_EXPORTBITMAPNAME);
+  psMainData->boBitmapScreenDimensions = TRUE;
+  psMainData->nBitmapWidth = 512;
+  psMainData->nBitmapHeight = 512;
 
 	return psMainData;
 }
@@ -153,8 +175,11 @@ void DeleteMainPersist (MainPersist * psMainData) {
   if (psMainData->szFolder) {
     g_string_free (psMainData->szFolder, TRUE);
   }
-  if (psMainData->szExportName) {
-    g_string_free (psMainData->szExportName, TRUE);
+  if (psMainData->szExportModelName) {
+    g_string_free (psMainData->szExportModelName, TRUE);
+  }
+  if (psMainData->szExportBitmapName) {
+    g_string_free (psMainData->szExportBitmapName, TRUE);
   }
 
 	g_free (psMainData);
@@ -976,7 +1001,7 @@ static gboolean SaveFilePress (GtkWidget * psWidget, gpointer psData) {
   return TRUE;
 }
 
-static gboolean ExportPress (GtkWidget * psWidget, gpointer psData) {
+static gboolean ExportModelPress (GtkWidget * psWidget, gpointer psData) {
 	MainPersist * psMainData = (MainPersist * )psData;
   GtkWidget * psDialogue;
   GtkWindow * psParent;
@@ -999,7 +1024,7 @@ static gboolean ExportPress (GtkWidget * psWidget, gpointer psData) {
 
   psParent = GTK_WINDOW (glade_xml_get_widget (psMainData->psXML, "MainWindow"));
 
-  psDialogue = gtk_file_chooser_dialog_new ("Export File", psParent, 
+  psDialogue = gtk_file_chooser_dialog_new ("Export Model", psParent, 
     GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, 
     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 
@@ -1015,11 +1040,11 @@ static gboolean ExportPress (GtkWidget * psWidget, gpointer psData) {
     gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (psDialogue), g_get_home_dir ());
   }
 
-  if (!psMainData->boExported) {
-    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (psDialogue), DEFAULT_EXPORTNAME);
+  if (!psMainData->boExportedModel) {
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (psDialogue), DEFAULT_EXPORTMODELNAME);
   }
   else {
-    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (psDialogue), psMainData->szExportName->str);
+    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (psDialogue), psMainData->szExportModelName->str);
   }
 
 	psBinary = gtk_check_button_new_with_label ("Binary format");
@@ -1030,9 +1055,9 @@ static gboolean ExportPress (GtkWidget * psWidget, gpointer psData) {
   if (gtk_dialog_run (GTK_DIALOG (psDialogue)) == GTK_RESPONSE_ACCEPT) {
   	psMainData->boBinary = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (psBinary));
     szFilename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (psDialogue));
-    boExported = ExportFile (szFilename, psMainData);
+    boExported = ExportModelFile (szFilename, psMainData);
     if (boExported) {
-      g_string_assign (psMainData->szExportName, szFilename);
+      g_string_assign (psMainData->szExportModelName, szFilename);
 
       szFolder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (psDialogue));
       psMainData->boFolderSet = (szFolder != NULL);
@@ -1042,10 +1067,176 @@ static gboolean ExportPress (GtkWidget * psWidget, gpointer psData) {
         szFolder = NULL;
       }
     }
-    psMainData->boExported = boExported;
+    psMainData->boExportedModel = boExported;
     g_free (szFilename);
     szFilename = NULL;
   }
+  gtk_widget_destroy (psDialogue);
+
+  return TRUE;
+}
+
+static gboolean BitmapWindowSizeToggle (GtkWidget * psWidget, gpointer psData) {
+	BitmapSize * psBitmapSizeData = (BitmapSize * )psData;
+	bool boWindowSize;
+	
+	boWindowSize = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (psWidget));
+	
+	gtk_widget_set_sensitive (psBitmapSizeData->psWidth, !boWindowSize);
+	gtk_widget_set_sensitive (psBitmapSizeData->psWidthLabel, !boWindowSize);
+	gtk_widget_set_sensitive (psBitmapSizeData->psHeight, !boWindowSize);
+	gtk_widget_set_sensitive (psBitmapSizeData->psHeightLabel, !boWindowSize);
+
+	return TRUE;
+}
+
+
+
+static gboolean ExportBitmapPress (GtkWidget * psWidget, gpointer psData) {
+	MainPersist * psMainData = (MainPersist * )psData;
+  GtkWidget * psDialogue;
+  GtkWindow * psParent;
+  char * szFilename;
+  char * szFolder;
+  bool boExported;
+  GtkFileFilter * psFilterPNG;
+  GtkFileFilter * psFilterAll;
+  BitmapSize sSizeWidgets;
+  GtkWidget * psWidgetAdd;
+  GtkWidget * psOptions;
+  GtkWidget * psAlign;
+
+  psFilterPNG = gtk_file_filter_new ();
+  gtk_file_filter_add_pattern (psFilterPNG, "*.png");
+  gtk_file_filter_add_mime_type (psFilterPNG, "image/png");
+  gtk_file_filter_add_mime_type (psFilterPNG, "application/png");
+  gtk_file_filter_set_name (psFilterPNG, "Portable Network Graphics");
+
+  psFilterAll = gtk_file_filter_new ();
+  gtk_file_filter_add_pattern (psFilterAll, "*");
+  gtk_file_filter_set_name (psFilterAll, "All Files");
+
+  psParent = GTK_WINDOW (glade_xml_get_widget (psMainData->psXML, "MainWindow"));
+
+  psDialogue = gtk_file_chooser_dialog_new ("Export Bitmap", psParent, 
+    GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, 
+    GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+
+  gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (psDialogue), TRUE);
+  g_object_set (G_OBJECT (psDialogue), "local-only", FALSE, NULL);
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (psDialogue), psFilterPNG);
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (psDialogue), psFilterAll);
+
+  if (psMainData->boFolderSet) {
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (psDialogue), psMainData->szFolder->str);
+  }
+  else {
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (psDialogue), g_get_home_dir ());
+  }
+
+  if (!psMainData->boExportedBitmap) {
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (psDialogue), DEFAULT_EXPORTBITMAPNAME);
+  }
+  else {
+    gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (psDialogue), psMainData->szExportBitmapName->str);
+  }
+
+	psOptions = gtk_hbox_new (FALSE, 8);
+
+	psAlign = gtk_alignment_new (0.0, 0.5, 0, 0);
+	gtk_box_pack_start (GTK_BOX (psOptions), psAlign, FALSE, TRUE, 0);
+	gtk_alignment_set_padding (GTK_ALIGNMENT (psAlign), 0, 0, 0, 20);
+	gtk_widget_show(psAlign);
+
+	psWidgetAdd = gtk_check_button_new_with_label ("Window size");
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (psWidgetAdd), psMainData->boBitmapScreenDimensions);
+	gtk_container_add (GTK_CONTAINER (psAlign), psWidgetAdd);
+	gtk_widget_show (psWidgetAdd);
+	sSizeWidgets.psWindowSize = psWidgetAdd;
+
+	psAlign = gtk_alignment_new (1.0, 0.5, 0, 0);
+	gtk_box_pack_start (GTK_BOX (psOptions), psAlign, FALSE, TRUE, 0);
+	gtk_widget_show(psAlign);
+
+	psWidgetAdd = gtk_label_new ("Width");
+	gtk_container_add (GTK_CONTAINER (psAlign), psWidgetAdd);
+	gtk_widget_show (psWidgetAdd);
+	sSizeWidgets.psWidthLabel = psWidgetAdd;
+
+	psAlign = gtk_alignment_new (0.0, 0.5, 0, 0);
+	gtk_box_pack_start (GTK_BOX (psOptions), psAlign, FALSE, TRUE, 0);
+	gtk_widget_show(psAlign);
+
+	psWidgetAdd = gtk_spin_button_new_with_range (1, 2048, 1);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (psWidgetAdd), psMainData->nBitmapWidth);
+	gtk_container_add (GTK_CONTAINER (psAlign), psWidgetAdd);
+	gtk_widget_show (psWidgetAdd);
+	sSizeWidgets.psWidth = psWidgetAdd;
+
+	psAlign = gtk_alignment_new (1.0, 0.5, 0, 0);
+	gtk_box_pack_start (GTK_BOX (psOptions), psAlign, FALSE, TRUE, 0);
+	gtk_widget_show(psAlign);
+
+	psWidgetAdd = gtk_label_new ("Height");
+	gtk_container_add (GTK_CONTAINER (psAlign), psWidgetAdd);
+	gtk_widget_show (psWidgetAdd);
+	sSizeWidgets.psHeightLabel = psWidgetAdd;
+
+	psAlign = gtk_alignment_new (0.0, 0.5, 0, 0);
+	gtk_box_pack_start (GTK_BOX (psOptions), psAlign, FALSE, TRUE, 0);
+	gtk_widget_show(psAlign);
+
+	psWidgetAdd = gtk_spin_button_new_with_range (1, 2048, 1);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (psWidgetAdd), psMainData->nBitmapHeight);
+	gtk_container_add (GTK_CONTAINER (psAlign), psWidgetAdd);
+	gtk_widget_show (psWidgetAdd);
+	sSizeWidgets.psHeight = psWidgetAdd;
+
+	g_signal_connect (sSizeWidgets.psWindowSize, "toggled", G_CALLBACK (BitmapWindowSizeToggle), (gpointer)(& sSizeWidgets));
+
+	gtk_widget_show (psOptions);
+	gtk_file_chooser_set_extra_widget (GTK_FILE_CHOOSER (psDialogue), psOptions);
+
+	BitmapWindowSizeToggle (sSizeWidgets.psWindowSize, (gpointer)(& sSizeWidgets));
+
+  if (gtk_dialog_run (GTK_DIALOG (psDialogue)) == GTK_RESPONSE_ACCEPT) {
+
+		psMainData->boBitmapScreenDimensions = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sSizeWidgets.psWindowSize));
+
+		if (psMainData->boBitmapScreenDimensions) {
+			psMainData->nBitmapWidth = GetScreenWidth (psMainData->psVisData);
+			psMainData->nBitmapHeight = GetScreenHeight (psMainData->psVisData);
+		}
+		else {
+			psMainData->nBitmapWidth = gtk_spin_button_get_value (GTK_SPIN_BUTTON (sSizeWidgets.psWidth));
+			psMainData->nBitmapHeight = gtk_spin_button_get_value (GTK_SPIN_BUTTON (sSizeWidgets.psHeight));
+		}
+
+    szFilename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (psDialogue));
+
+    boExported = ExportBitmapFile (szFilename, psMainData->nBitmapHeight, psMainData->nBitmapWidth, psMainData);
+
+    if (boExported) {
+      g_string_assign (psMainData->szExportBitmapName, szFilename);
+
+      szFolder = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (psDialogue));
+      psMainData->boFolderSet = (szFolder != NULL);
+      if (szFolder) {
+        g_string_assign (psMainData->szFolder, szFolder);
+        g_free (szFolder);
+        szFolder = NULL;
+      }
+    }
+    psMainData->boExportedBitmap = boExported;
+    g_free (szFilename);
+    szFilename = NULL;
+  }
+  else {
+		psMainData->boBitmapScreenDimensions = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (sSizeWidgets.psWindowSize));
+		psMainData->nBitmapWidth = gtk_spin_button_get_value (GTK_SPIN_BUTTON (sSizeWidgets.psWidth));
+		psMainData->nBitmapHeight = gtk_spin_button_get_value (GTK_SPIN_BUTTON (sSizeWidgets.psHeight));
+  }
+
   gtk_widget_destroy (psDialogue);
 
   return TRUE;
@@ -1176,7 +1367,9 @@ int main (int argc, char *argv[]) {
 	psWidget = glade_xml_get_widget (psMainData->psXML, "Save");
 	g_signal_connect (psWidget, "clicked", G_CALLBACK (SaveFilePress), (gpointer)psMainData);
 	psWidget = glade_xml_get_widget (psMainData->psXML, "Export");
-	g_signal_connect (psWidget, "clicked", G_CALLBACK (ExportPress), (gpointer)psMainData);
+	g_signal_connect (psWidget, "clicked", G_CALLBACK (ExportModelPress), (gpointer)psMainData);
+	psWidget = glade_xml_get_widget (psMainData->psXML, "Bitmap");
+	g_signal_connect (psWidget, "clicked", G_CALLBACK (ExportBitmapPress), (gpointer)psMainData);
 
 	psWidget = glade_xml_get_widget (psMainData->psXML, "Zoom");
 	g_signal_connect (psWidget, "value_changed", G_CALLBACK (DisplayPropertiesSpinChanged), (gpointer)psMainData);
@@ -1305,12 +1498,20 @@ bool SaveFile (char const * szFilename, MainPersist * psMainData) {
 	return boSuccess;
 }
 
-bool ExportFile (char const * szFilename, MainPersist * psMainData) {
+bool ExportModelFile (char const * szFilename, MainPersist * psMainData) {
 	bool boSuccess;
 	CelticPersist * psCelticData;
 
 	psCelticData = GetCelticData (psMainData->psVisData);
 	boSuccess = ExportModel (szFilename, psMainData->boBinary, psCelticData);
+
+	return boSuccess;
+}
+
+bool ExportBitmapFile (char const * szFilename, int nHeight, int nWidth, MainPersist * psMainData) {
+	bool boSuccess;
+
+	boSuccess = ExportBitmap (szFilename, "png", nHeight, nWidth, psMainData->psVisData);
 
 	return boSuccess;
 }
