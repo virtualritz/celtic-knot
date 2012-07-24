@@ -80,6 +80,8 @@ RenderPersist * NewRenderPersist (float fXOffset, float fYOffset, float fZOffset
 	psRenderData->nBezierNum = 0;
 	psRenderData->uColourSeed = 0u;
 	psRenderData->asColour = NULL;
+	psRenderData->uAccuracyLongitudinal = 24u;
+	psRenderData->uAccuracyRadial = 10u;
 	psRenderData->fLength = 0.0f;
 
 	return psRenderData;
@@ -394,6 +396,40 @@ unsigned int GetColourSeed (CelticPersist * psCelticData) {
 	return psCelticData->psRenderData->uColourSeed;
 }
 
+bool SetAccuracyLongitudinal (unsigned int uAccuracy, CelticPersist * psCelticData) {
+	bool boChanged = FALSE;
+
+	if (uAccuracy >= 1) {
+		boChanged = (psCelticData->psRenderData->uAccuracyLongitudinal != uAccuracy);
+		psCelticData->psRenderData->uAccuracyLongitudinal = uAccuracy;
+
+		SetAccuracy (psCelticData->psRenderData->uAccuracyLongitudinal, psCelticData->psRenderData->uAccuracyRadial, psCelticData->psRenderData->psBezData);
+	}
+
+	return boChanged;
+}
+
+unsigned int GetAccuracyLongitudinal (CelticPersist * psCelticData) {
+	return psCelticData->psRenderData->uAccuracyLongitudinal;
+}
+
+bool SetAccuracyRadial (unsigned int uAccuracy, CelticPersist * psCelticData) {
+	bool boChanged = FALSE;
+
+	if (uAccuracy >= 3) {
+		boChanged = (psCelticData->psRenderData->uAccuracyRadial != uAccuracy);
+		psCelticData->psRenderData->uAccuracyRadial = uAccuracy;
+
+		SetAccuracy (psCelticData->psRenderData->uAccuracyLongitudinal, psCelticData->psRenderData->uAccuracyRadial, psCelticData->psRenderData->psBezData);
+	}
+
+	return boChanged;
+}
+
+unsigned int GetAccuracyRadial (CelticPersist * psCelticData) {
+	return psCelticData->psRenderData->uAccuracyRadial;
+}
+
 int GetLoops (CelticPersist * psCelticData) {
 	return psCelticData->nLoops;
 }
@@ -437,6 +473,8 @@ void SaveSettingsRender (SettingsPersist * psSettingsData, RenderPersist * psRen
 	SettingsPrintFloat (psSettingsData, "LineInsetZ", psRenderData->vLineInset.fZ);
 	SettingsPrintFloat (psSettingsData, "Thickness", psRenderData->fThickness);
 	SettingsPrintFloat (psSettingsData, "WeaveHeight", psRenderData->fWeaveHeight);
+	SettingsPrintInt (psSettingsData, "AccuracyLongitudinal", psRenderData->uAccuracyLongitudinal);
+	SettingsPrintInt (psSettingsData, "AccuracyRadial", psRenderData->uAccuracyRadial);
 }
 
 void LoadSettingsStartRender (SettingsPersist * psSettingsData, RenderPersist * psRenderData) {
@@ -482,7 +520,13 @@ void RenderLoadProperty (SETTINGTYPE const eType, char const * szName, void cons
 		break;
 	case SETTINGTYPE_INT:
 		if (stricmp (szName, "ColourSeed") == 0) {
-			psRenderData->uColourSeed = *((int*)(psValue));
+			psRenderData->uColourSeed = *((unsigned int*)(psValue));
+		}
+		else if (stricmp (szName, "AccuracyLongitudinal") == 0) {
+			psRenderData->uAccuracyLongitudinal = *((unsigned int*)(psValue));
+		}
+		else if (stricmp (szName, "AccuracyRadial") == 0) {
+			psRenderData->uAccuracyRadial = *((unsigned int*)(psValue));
 		}
 		break;
 	default:

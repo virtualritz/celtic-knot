@@ -1059,6 +1059,21 @@ Vector3 SplitLine (Vector3 vStart, Vector3 vEnd, float fRatio) {
 	return vMid;
 }
 
+void SetAccuracy (int nPieces, int nSegments, BezPersist * psBezData) {
+	// Note that in order to prevent serious problems
+	// all beziers must be regenerated after changing the accuracy values
+
+	// Free the index buffers
+	glDeleteBuffers (psBezData->nPieces, psBezData->auIndexBuffer);
+	g_free (psBezData->auIndexBuffer);
+	psBezData->auIndexBuffer = NULL;
+
+	// Recreate the index buffers
+	psBezData->nPieces = nPieces;
+	psBezData->nSegments = nSegments;
+	psBezData->auIndexBuffer = CreateBezierIndexBuffers (psBezData->nPieces, psBezData->nSegments);
+}
+
 void DeleteBeziers (Bezier * psBezierStart, int nNum, BezPersist * psBezData) {
 	Bezier * psBezier;
 	Bezier * psBezierNext;

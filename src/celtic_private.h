@@ -58,6 +58,8 @@ struct _RenderPersist {
 		Cube3Colour * asColour3D;
 		void * asColour;
 	};
+	unsigned int uAccuracyLongitudinal;
+	unsigned int uAccuracyRadial;
 	float fLength;
 };
 

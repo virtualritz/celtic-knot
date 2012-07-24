@@ -76,6 +76,10 @@ int GetHeight (CelticPersist * psCelticData);
 int GetDepth (CelticPersist * psCelticData);
 bool SetOrientation (TILE eOrientation, CelticPersist * psCelticData);
 TILE GetOrientation (CelticPersist * psCelticData);
+bool SetAccuracyLongitudinal (unsigned int uAccuracy, CelticPersist * psCelticData);
+unsigned int GetAccuracyLongitudinal (CelticPersist * psCelticData);
+bool SetAccuracyRadial (unsigned int uAccuracy, CelticPersist * psCelticData);
+unsigned int GetAccuracyRadial (CelticPersist * psCelticData);
 
 /* Dynamic properties */
 bool SetTileX (float fTileX, CelticPersist * psCelticData);

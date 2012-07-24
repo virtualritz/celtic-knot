@@ -588,6 +588,14 @@ void SetConfigureDialogue (MainPersist * psMainData) {
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (psWidgetSet), (eValue == TILE_VERTICAL));
 	psWidgetSet = glade_xml_get_widget (psMainData->psXML, "Longitudinal");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (psWidgetSet), (eValue == TILE_LONGITUDINAL));
+
+	psWidgetSet = glade_xml_get_widget (psMainData->psXML, "AccuracyLongitudinal");
+	uValue = GetAccuracyLongitudinal (psCelticData);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (psWidgetSet), uValue);
+
+	psWidgetSet = glade_xml_get_widget (psMainData->psXML, "AccuracyRadial");
+	uValue = GetAccuracyRadial (psCelticData);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON (psWidgetSet), uValue);
 }
 
 void SetConfigureValues (MainPersist * psMainData) {
@@ -661,6 +669,14 @@ void SetConfigureValues (MainPersist * psMainData) {
 	if (boValue) {
 		SetOrientation (TILE_LONGITUDINAL, psCelticData);
 	}
+
+	psWidgetSet = glade_xml_get_widget (psMainData->psXML, "AccuracyLongitudinal");
+	uValue = gtk_spin_button_get_value (GTK_SPIN_BUTTON (psWidgetSet));
+	SetAccuracyLongitudinal (uValue, psCelticData);
+
+	psWidgetSet = glade_xml_get_widget (psMainData->psXML, "AccuracyRadial");
+	uValue = gtk_spin_button_get_value (GTK_SPIN_BUTTON (psWidgetSet));
+	SetAccuracyRadial (uValue, psCelticData);
 
 	/* Redraw the knot */
 	GenerateKnot (psCelticData);

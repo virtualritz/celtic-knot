@@ -49,6 +49,7 @@ Bezier * GetBezierPrev (Bezier * psBezier);
 void StoreBeziers (bool boStore, BezPersist * psBezData);
 bool OutputStoredBeziers (char const * szFilename, BezPersist * psBezData, bool boBinary);
 float BezierCalculateLength (Vector3 vStart, Vector3 vStartDir, Vector3 vEnd, Vector3 vEndDir, BezPersist * psBezData);
+void SetAccuracy (int nPieces, int nSegments, BezPersist * psBezData);
 
 ///////////////////////////////////////////////////////////////////
 // Function definitions
