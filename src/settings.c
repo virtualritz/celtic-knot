@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -46,6 +47,10 @@ struct _SettingsPersist {
 	GString * szText;
 	SETTINGTYPE eType;
 	GString * szID;
+};
+
+struct _LocaleRestore {
+	GString * szLocale;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -370,4 +375,34 @@ SettingsLoadParser * GetParser (SettingsPersist * psSettingsData) {
 	return psSettingsData->psParser;
 }
 
+LocaleRestore * ClearLocale () {
+	LocaleRestore * psRestore;
+	char * szCurrent;
+
+	szCurrent = setlocale (LC_NUMERIC, NULL);
+	psRestore = g_new (LocaleRestore, 1);
+	if (szCurrent) {
+		psRestore->szLocale = g_string_new (szCurrent);
+	}
+	else {
+		psRestore->szLocale = NULL;
+	}
+
+	setlocale (LC_NUMERIC, "C");
+	
+	return psRestore;
+}
+
+void RestoreLocale (LocaleRestore * psRestore) {
+	if (psRestore) {
+		if (psRestore->szLocale) {
+			setlocale (LC_NUMERIC, psRestore->szLocale->str);
+			g_string_free (psRestore->szLocale, TRUE);
+		}
+		else {
+			setlocale (LC_NUMERIC, "");
+		}
+		g_free (psRestore);
+	}
+}
 

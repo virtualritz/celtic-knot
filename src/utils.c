@@ -246,22 +246,32 @@ Matrix3 RotationBetweenVectors (Vector3 * v1, Vector3 * v2) {
 	Matrix3 mReturn;
 	float fAngle;
 	Vector3 vAxis;
+	Vector3 v1normal;
+	Vector3 v2normal;
+	
+	v1normal = *v1;
+	v2normal = *v2;
 
-	Normalise (v1);
-	Normalise (v2);
-	fAngle = DotProdAngleVector (v1, v2);
-	if (fAngle == 0.0f) {
+	if ((Length (v1) == 0.0) || (Length (v2) == 0.0)) {
 		SetIdentity (& mReturn);
 	}
 	else {
-		if (fAngle >= M_PI) {
-			vAxis = PerpendicularVector (v1);
-			mReturn = RotationAngleAxis (& vAxis, fAngle);
+		Normalise (& v1normal);
+		Normalise (& v2normal);
+		fAngle = DotProdAngleVector (& v1normal, & v2normal);
+		if (fAngle < 0.001f) {
+			SetIdentity (& mReturn);
 		}
 		else {
-			vAxis = CrossProduct (v1, v2);
-			Normalise (& vAxis);
-			mReturn = RotationAngleAxis (& vAxis, fAngle);
+			if (fAngle >= M_PI) {
+				vAxis = PerpendicularVector (& v1normal);
+				mReturn = RotationAngleAxis (& vAxis, fAngle);
+			}
+			else {
+				vAxis = CrossProduct (& v1normal, & v2normal);
+				Normalise (& vAxis);
+				mReturn = RotationAngleAxis (& vAxis, fAngle);
+			}
 		}
 	}
 
@@ -322,6 +332,3 @@ Vector3 PerpendicularVector (Vector3 * pvVector) {
 
 	return vOrth;
 }
-
-
-

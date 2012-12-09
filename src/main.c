@@ -1474,10 +1474,12 @@ bool LoadFile (char const * szFilename, MainPersist * psMainData) {
 	SettingsPersist * psSettingsData = NULL;
 	SettingsLoadParser * psLoadParser = NULL;
 	bool boSuccess;
+	LocaleRestore * psRestore;
+
+	psRestore = ClearLocale ();
 
 	psSettingsData = NewSettingsPersist ("knot", szFilename);
 	psLoadParser = g_new0 (SettingsLoadParser, 1);
-
 
 	psLoadParser->LoadProperty = MainLoadProperty;
 	psLoadParser->LoadSectionStart = MainLoadSectionStart;
@@ -1492,13 +1494,18 @@ bool LoadFile (char const * szFilename, MainPersist * psMainData) {
 	g_free (psLoadParser);
 	DeleteSettingsPersist (psSettingsData);
 
+	RestoreLocale (psRestore);
+
 	return boSuccess;
 }
 
 bool SaveFile (char const * szFilename, MainPersist * psMainData) {
 	SettingsPersist * psSettingsData = NULL;
 	bool boSuccess;
+	LocaleRestore * psRestore;
 
+	psRestore = ClearLocale ();
+	
 	psSettingsData = NewSettingsPersist ("knot", szFilename);
 
 	SettingsSaveStart (psSettingsData);
@@ -1511,16 +1518,23 @@ bool SaveFile (char const * szFilename, MainPersist * psMainData) {
 
 	DeleteSettingsPersist (psSettingsData);
 
+	RestoreLocale (psRestore);
+	
 	return boSuccess;
 }
 
 bool ExportModelFile (char const * szFilename, MainPersist * psMainData) {
 	bool boSuccess;
 	CelticPersist * psCelticData;
+	LocaleRestore * psRestore;
+
+	psRestore = ClearLocale ();
 
 	psCelticData = GetCelticData (psMainData->psVisData);
 	boSuccess = ExportModel (szFilename, psMainData->boBinary, psCelticData);
 
+	RestoreLocale (psRestore);
+	
 	return boSuccess;
 }
 

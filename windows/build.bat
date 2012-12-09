@@ -8,4 +8,5 @@ dlltool --output-def main.def main.o
 dlltool --dllname knot.exe --def main.def --output-exp main.exp
 
 gcc -DUSE_GLADE -g -O2 -mwindows *.o main.exp -L"%GTK_BASEPATH%\lib" -Wl,-luuid -lgtkglext-win32-1.0 -lgdkglext-win32-1.0 -lglu32 -lGLee -luser32 -lkernel32 -lopengl32 -lgtk-win32-2.0 -lglade-2.0 -lglib-2.0 -lgdk-win32-2.0 -lgdk_pixbuf-2.0 -limm32 -lshell32 -lole32 -latk-1.0 -lpangocairo-1.0 -lcairo -lpangoft2-1.0 -lpangowin32-1.0 -lgdi32 -lz -lpango-1.0 -lgobject-2.0 -lm -lgmodule-2.0 -L"..\..\freeglut\lib" -lfreeglut -L"..\..\GLee" -lintl -L"%GTK_BASEPATH%\gnet" -lgnet-2.0 -o ..\knot.exe
+REM gcc -DUSE_GLADE -g -O2 *.o main.exp -L"%GTK_BASEPATH%\lib" -lgtkglext-win32-1.0 -lgdkglext-win32-1.0 -lglu32 -lGLee -luser32 -lkernel32 -lopengl32 -lgtk-win32-2.0 -lglade-2.0 -lglib-2.0 -lgdk-win32-2.0 -lgdk_pixbuf-2.0 -limm32 -lshell32 -lole32 -latk-1.0 -lpangocairo-1.0 -lcairo -lpangoft2-1.0 -lpangowin32-1.0 -lgdi32 -lz -lpango-1.0 -lgobject-2.0 -lm -lgmodule-2.0 -L"..\..\freeglut\lib" -lfreeglut -L"..\..\GLee" -lintl -L"%GTK_BASEPATH%\gnet" -lgnet-2.0 -o ..\knot.exe
 cd ..
