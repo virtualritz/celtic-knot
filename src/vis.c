@@ -809,7 +809,9 @@ void Key (unsigned char key, int x, int y, unsigned int uKeyModifiers, VisPersis
 			break;
 		case 'x':
 			// New knot seed;
-			uSeed = GetRandomSeed ();
+			uSeed = GetSeed (psVisData->psCelticData);
+			uSeed++;
+			//uSeed = GetRandomSeed ();
 			SetSeed (uSeed, psVisData->psCelticData);
 			GenerateKnot (psVisData->psCelticData);
 			RenderKnots (psVisData->psCelticData);

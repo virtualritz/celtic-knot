@@ -315,6 +315,9 @@ bool OutputStoredBeziers (char const * szFilename, BezPersist * psBezData, bool 
 		fprintf (hFile, "property float x\n");
 		fprintf (hFile, "property float y\n");
 		fprintf (hFile, "property float z\n");
+		fprintf (hFile, "property uint8 red\n");
+		fprintf (hFile, "property uint8 green\n");
+		fprintf (hFile, "property uint8 blue\n");
 		fprintf (hFile, "element face %d\n", nFaces);
 		fprintf (hFile, "property list uchar int vertex_indices\n");
 		fprintf (hFile, "end_header\n");
@@ -355,6 +358,10 @@ int OutputStoredVertices (FILE * hFile, int nPieces, int nSegments, BezDetails c
 	Matrix3 mRotation;
 	Vector3 vVertex;
 	int nVertices;
+	float fColour;
+  unsigned char ucColour[BEZ_COL_COMPONENTS];
+  float fColScale;
+  int nColComponent;
 
 	vNormal.fX = 1.0f;
 	vNormal.fY = 0.0f;
@@ -378,6 +385,13 @@ int OutputStoredVertices (FILE * hFile, int nPieces, int nSegments, BezDetails c
 		mRotate = RotationBetweenVectors (& vNormalPrev, & vNormal);
 		mRotation = MultMatrixMatrix (& mRotation, & mRotate);
 
+		// Calculate vertex colour
+		fColScale = ((float)nPiece / (float)nPieces);
+		for (nColComponent = 0; nColComponent < BEZ_COL_COMPONENTS; nColComponent++) {
+			fColour = (psBezDetails->afColourEnd[nColComponent] * fColScale) + (psBezDetails->afColourStart[nColComponent] * (1.0f - fColScale));
+			ucColour[nColComponent] = (unsigned char)(fColour * 255.0);
+		}
+
 		for (nSegment = 0; nSegment < nSegments; nSegment++) {
 			fTheta = (float)nSegment * (2.0 * M_PI / (float)nSegments);
 
@@ -394,9 +408,11 @@ int OutputStoredVertices (FILE * hFile, int nPieces, int nSegments, BezDetails c
 
 			if (boBinary) {
 				fwrite (& vVertex, sizeof (float), 3, hFile);
+				fwrite (ucColour, sizeof (unsigned char), BEZ_COL_COMPONENTS, hFile);
 			}
 			else {
 				fprintf (hFile, "%f %f %f\n", vVertex.fX, vVertex.fY, vVertex.fZ);
+				fprintf (hFile, "%u %u %u ", ucColour[0], ucColour[1], ucColour[2]);
 			}
 			nVertices++;
 		}
@@ -449,6 +465,13 @@ int OutputStoredVertices (FILE * hFile, int nPieces, int nSegments, BezDetails c
 		}
 	}
 	
+	// Calculate vertex colour
+	fColScale = ((float)nPiece / (float)nPieces);
+	for (nColComponent = 0; nColComponent < BEZ_COL_COMPONENTS; nColComponent++) {
+		fColour = (psBezDetails->afColourEnd[nColComponent] * fColScale) + (psBezDetails->afColourStart[nColComponent] * (1.0f - fColScale));
+		ucColour[nColComponent] = (unsigned char)(fColour * 255.0);
+	}
+
 	for (nSegment = 0; nSegment < nSegments; nSegment++) {
 		fTheta = (float)nSegment * (2.0 * M_PI / (float)nSegments);
 		fTheta += fAngle;
@@ -469,14 +492,14 @@ int OutputStoredVertices (FILE * hFile, int nPieces, int nSegments, BezDetails c
 
 		if (boBinary) {
 			fwrite (& vVertex, sizeof (float), 3, hFile);
+			fwrite (ucColour, sizeof (unsigned char), BEZ_COL_COMPONENTS, hFile);
 		}
 		else {
 			fprintf (hFile, "%f %f %f\n", vVertex.fX, vVertex.fY, vVertex.fZ);
+			fprintf (hFile, "%u %u %u ", ucColour[0], ucColour[1], ucColour[2]);
 		}
 		nVertices++;
 	}
-
-
 	
 	return nVertices;
 }
