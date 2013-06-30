@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([Knot], [0.1.3], [david@flypig.co.uk])
+AC_INIT([Knot3D], [0.1.4], [david@flypig.co.uk])
 AC_CONFIG_AUX_DIR([config])
 AM_INIT_AUTOMAKE([-Wall -Werror])
 AC_CONFIG_SRCDIR([src/main.c])
@@ -13,7 +13,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 
 # Checks for libraries.
-PKG_CHECK_MODULES([KNOT], [gtk+-2.0 libglade-2.0 gdk-2.0 gtkglext-1.0 glee])
+PKG_CHECK_MODULES([KNOT3D], [gtk+-2.0 libglade-2.0 gdk-2.0 gtkglext-1.0 glee])
 
 # Checks for header files.
 AC_HEADER_DIRENT

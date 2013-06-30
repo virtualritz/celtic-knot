@@ -1,16 +1,23 @@
-knot (0.1.2-1) unstable; urgency=low
+knot3d (0.1.4-1) unstable; urgency=low
+
+  * Fixed locale file export error.
+  * Changed thread colouring algorithm.
+
+ -- David Llewellyn-Jones <david@flypig.co.uk>  Sat, 12 May 2012 23:57:00 +0100
+ 
+knot3d (0.1.2-1) unstable; urgency=low
 
   * Added option to export image as PNG file.
 
  -- David Llewellyn-Jones <david@flypig.co.uk>  Sat, 12 May 2012 23:57:00 +0100
 
-knot (0.1.1-1) unstable; urgency=low
+knot3d (0.1.1-1) unstable; urgency=low
 
   * Code moved to SourceForge
 
  -- David Llewellyn-Jones <david@flypig.co.uk>  Sun, 6 May 2012 15:57:00 +0100
 
-knot (0.1.0-1) unstable; urgency=low
+knot3d (0.1.0-1) unstable; urgency=low
 
   * Initial release
 

@@ -1,2 +1,2 @@
-?package(knot):needs="X11" section="Applications/Education"\
-  title="Knot" command="/usr/bin/knot"
+?package(knot3d):needs="X11" section="Applications/Education"\
+  title="Knot3D" command="/usr/bin/knot3d"

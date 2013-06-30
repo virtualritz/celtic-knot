@@ -1,14 +1,14 @@
-Source: knot
+Source: knot3d
 Section: math
 Priority: extra
 Maintainer: David Llewellyn-Jones <david@flypig.co.uk>
 Build-Depends: debhelper (>= 7), autotools-dev, libgtkglext1-dev, libglu1-mesa-dev, freeglut3-dev, libgtk2.0-dev, libpango1.0-dev, libglib2.0-dev, libcairo2-dev, libfreetype6-dev, zlib1g-dev, libfontconfig1-dev, libglade2-dev, libxml2-dev, pkg-config
 Standards-Version: 3.8.0
 
-Package: knot
+Package: knot3d
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Application visualisation of 3D Celtic knots
- Knot is a package for visualising 3D Celtic Knots. The
- knot models can also be exported for loading into 3D
+ Knot3D is a package for visualising 3D Celtic Knots. The
+ knot3d models can also be exported for loading into 3D
  modelling applications or 3D printing.
