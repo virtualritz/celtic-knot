@@ -13,7 +13,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 
 # Checks for libraries.
-PKG_CHECK_MODULES([KNOT], [gtk+-2.0 libglade-2.0 gdk-2.0])
+PKG_CHECK_MODULES([KNOT], [gtk+-2.0 libglade-2.0 gdk-2.0 gtkglext-1.0 glee])
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -29,6 +29,7 @@ AC_C_CONST
 AC_C_INLINE
 
 # Checks for library functions.
+AC_SEARCH_LIBS([GLeeEnabled], [glee GLee], [], [])
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([floor ftime pow sqrt])
 

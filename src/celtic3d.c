@@ -64,6 +64,7 @@ static void FollowKnotInside (VecInt3 * pvnPos, VecInt3 * pvnCorner, CelticPersi
 static void FollowKnotToNext (VecInt3 * pvnPos, VecInt3 * pvnCorner, CelticPersist * psCelticData);
 static void ColourLoop (VecInt3 * pvnPos, VecInt3 * pvnCorner, Cube3Complete * asCompleted, ColFloats const * psColour, CelticPersist * psCelticData);
 static void SelectColour (ColFloats * psColour, RenderPersist * psRenderData);
+static void SelectColourSmooth (ColFloats * psColour, ColFloats * psColStart, ColFloats * psColEnd, float fPos, RenderPersist * psRenderData);
 static void CelticLoadProperty (SETTINGTYPE const eType, char const * szName, void const * const psValue, void * psData, SettingsPersist * psSettingsData);
 static void CelticLoadSectionStart (char const * szName, void * psData, SettingsPersist * psSettingsData);
 static void CelticLoadSectionEnd (char const * szName, void * psData, SettingsPersist * psSettingsData);
@@ -280,9 +281,13 @@ static int ColourTiles (CelticPersist * psCelticData) {
 	int nIndex;
 	VecInt3 vnLoopPos;
 	VecInt3 vnLoopCorner;
+	int nLoop;
 	int nLoops;
 	TILE eCorner;
 	ColFloats sColour;
+	ColFloats sColStart;
+	ColFloats sColEnd;
+	float fPos;
 
 	srand (psCelticData->psRenderData->uColourSeed);
 
@@ -303,6 +308,7 @@ static int ColourTiles (CelticPersist * psCelticData) {
 		}
 	}
 
+	// Count the number of loops
 	nLoops = 0;
 	for (vnPos.nX = 0; vnPos.nX < psCelticData->vnSize.nX; vnPos.nX++) {
 		for (vnPos.nY = 0; vnPos.nY < psCelticData->vnSize.nY; vnPos.nY++) {
@@ -317,6 +323,43 @@ static int ColourTiles (CelticPersist * psCelticData) {
 						if (eCorner != TILE_INVALID) {
 							ColourLoop (& vnLoopPos, & vnLoopCorner, asCompleted, & sColour, psCelticData);
 							nLoops++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Reset
+	for (nCount = 0; nCount < nTotal; nCount++) {
+		for (nCorner = 0; nCorner < 8; nCorner++) {
+			asCompleted[nCount].aCorner[nCorner] = FALSE;
+		}
+	}
+
+	// Select a random start and end colour for the loops
+	SelectColour (& sColStart, psCelticData->psRenderData);
+	SelectColour (& sColEnd, psCelticData->psRenderData);
+
+	// Go through each loop and move the colour from the start colour towards the end colour for each one
+	fPos = 0.0f;
+	nLoop = 0;
+	for (vnPos.nX = 0; vnPos.nX < psCelticData->vnSize.nX; vnPos.nX++) {
+		for (vnPos.nY = 0; vnPos.nY < psCelticData->vnSize.nY; vnPos.nY++) {
+			for (vnPos.nZ = 0; vnPos.nZ < psCelticData->vnSize.nZ; vnPos.nZ++) {
+				for (nCorner = 0; nCorner < 8; nCorner++) {
+					nIndex = ConvertToIndex (& vnPos, & psCelticData->vnSize);
+					if (asCompleted[nIndex].aCorner[nCorner] == FALSE) {
+
+						vnLoopPos = vnPos;
+						SetVecInt3 (vnLoopCorner, (nCorner % 2), ((nCorner / 2) % 2), (nCorner / 4));
+						eCorner = GetCorner (& vnLoopPos, & vnLoopCorner, psCelticData);
+
+						fPos = (float)nLoop/(float)nLoops;
+						SelectColourSmooth (& sColour, & sColStart, & sColEnd, fPos, psCelticData->psRenderData);
+						if (eCorner != TILE_INVALID) {
+							ColourLoop (& vnLoopPos, & vnLoopCorner, asCompleted, & sColour, psCelticData);
+							nLoop++;
 						}
 					}
 				}
@@ -340,6 +383,21 @@ static void SelectColour (ColFloats * psColour, RenderPersist * psRenderData) {
 			psColour->fGreen = COLOUR_PLAIN_GREEN;
 			psColour->fBlue = COLOUR_PLAIN_BLUE;
 		}
+	}
+}
+
+static void SelectColourSmooth (ColFloats * psColour, ColFloats * psColStart, ColFloats * psColEnd, float fPos, RenderPersist * psRenderData) {
+	if (psRenderData->uColourSeed != 0) {
+		if (psColour && psColStart && psColEnd) {
+			psColour->fRed = ((sin (2.0 * M_PI * (psColStart->fRed + (fPos * psColEnd->fRed))) + 1.0) / 2.0f);
+			psColour->fGreen = ((sin (2.0 * M_PI * (psColStart->fGreen + (fPos * psColEnd->fGreen))) + 1.0) / 2.0f);
+			psColour->fBlue = ((sin (2.0 * M_PI * (psColStart->fBlue + (fPos * psColEnd->fBlue))) + 1.0) / 2.0f);
+		}
+	}
+	else {
+		psColour->fRed = COLOUR_PLAIN_RED;
+		psColour->fGreen = COLOUR_PLAIN_GREEN;
+		psColour->fBlue = COLOUR_PLAIN_BLUE;
 	}
 }
 

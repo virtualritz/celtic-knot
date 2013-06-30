@@ -1,5 +1,5 @@
 bin_PROGRAMS = ../knot
-___knot_SOURCES = main.c settings.c settings.h utils.c utils.h vis.c vis.h bez.c bez.h celtic.c celtic.h celtic_private.h celtic3d.c celtic3d.h celtic2d.c celtic2d.h vecint.c vecint.h shader.c shader.h
+___knot_SOURCES = main.c settings.c settings.h utils.c utils.h vis.c vis.h bez.c bez.h celtic.c celtic.h celtic_private.h celtic3d.c celtic3d.h celtic2d.c celtic2d.h vecint.c vecint.h shader.c shader.h filesave.c filesave.h
 
 ___knot_LDADD = -lgtkglext-x11-1.0 -lgdkglext-x11-1.0 -lGLU -lglut -lXmu -lXt -lSM -lICE -lgtk-x11-2.0 -lpangox-1.0 -lX11 -lgdk-x11-2.0 -latk-1.0 -lpangoft2-1.0 -lgdk_pixbuf-2.0 -lm -lpangocairo-1.0 -lgio-2.0 -lcairo -lpango-1.0 -lfreetype -lz -lfontconfig -lgobject-2.0 -lgmodule-2.0 -lglee @KNOT_LIBS@
 

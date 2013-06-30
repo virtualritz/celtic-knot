@@ -796,7 +796,9 @@ void Key (unsigned char key, int x, int y, unsigned int uKeyModifiers, VisPersis
 			break;
 		case 'c':
 			// New colour seed;
-			uSeed = GetRandomSeed ();
+			uSeed = GetColourSeed (psVisData->psCelticData);
+			uSeed++;
+			//uSeed = GetRandomSeed ();
 			SetColourSeed (uSeed, psVisData->psCelticData);
 			GenerateKnot (psVisData->psCelticData);
 			RenderKnots (psVisData->psCelticData);
