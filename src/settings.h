@@ -48,6 +48,8 @@ typedef struct _SettingsLoadParser {
 	void * psData;
 } SettingsLoadParser;
 
+typedef struct _LocaleRestore LocaleRestore;
+
 ///////////////////////////////////////////////////////////////////
 // Global variables
 
@@ -78,6 +80,9 @@ void AddParser (SettingsLoadParser * psParser, SettingsPersist * psSettingsData)
 void RemoveParser (SettingsPersist * psSettingsData);
 SettingsLoadParser * GetParser (SettingsPersist * psSettingsData);
 
+// Locale related routines
+LocaleRestore * ClearLocale ();
+void RestoreLocale (LocaleRestore * psRestore);
 
 #endif /* SETTINGS_H */
 
