@@ -37,8 +37,8 @@
 #define DEFAULT_PORT (4972)
 #define FULLSCREEN_BUTTONBARSHOW (8)
 #define RADIUS_SCROLL (1)
-#define DEFAULT_FILENAME "Knot.xml"
-#define DEFAULT_SETTINGS_FILE ".knot.xml"
+#define DEFAULT_FILENAME "Knot3D.xml"
+#define DEFAULT_SETTINGS_FILE ".knot3d.xml"
 #define DEFAULT_EXPORTMODELNAME "Model.ply"
 #define DEFAULT_EXPORTBITMAPNAME "Bitmap.png"
 
