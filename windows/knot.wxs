@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 
-  <Product Name='Knot' Id='373DE960-214C-4D4F-91F4-755F8D296FC2'
+  <Product Name='Knot3D' Id='76D83770-A385-472F-BBE2-4496D8FA74B7'
     UpgradeCode='C0A0DC25-D112-43B6-86DA-1C6BC09A8246'
     Language='1033' Codepage='1252' Version='$(env.productversion)' Manufacturer='David Llewellyn-Jones'>
 
     <Package Id='*' Keywords='Installer'
       Description="Celtic Knot Installer"
-      Comments='Knot is released under an MIT-style licence. See http://www.flypig.co.uk/?page=knot for more info.'
+      Comments='Knot3D is released under an MIT-style licence. See http://www.flypig.co.uk/?page=knot for more info.'
       Manufacturer='David Llewellyn-Jones'
       InstallerVersion='100' 
 	  Languages='1033' 
@@ -15,17 +15,17 @@
 	  SummaryCodepage='1252' 
 	  InstallScope="perMachine"
 	  />
-    <Media Id='1' Cabinet='Knot.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
-    <Property Id='DiskPrompt' Value="Knot Installation [1]" />
+    <Media Id='1' Cabinet='Knot3D.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="Knot3D Installation [1]" />
 
     <Directory Id='TARGETDIR' Name='SourceDir'>
       <Directory Id='ProgramFilesFolder' Name='PFiles'>
-        <Directory Id='INSTALLDIR' Name='Knot'>
+        <Directory Id='INSTALLDIR' Name='Knot3D'>
           <Component Id='MainExecutable' Guid='7DED86E2-521F-4398-B999-542F91B54A7A'>
-            <File Id='KnotEXE' Name='knot.exe' DiskId='1'
-              Source='knot.exe' Vital='yes'>
+            <File Id='KnotEXE' Name='knot3d.exe' DiskId='1'
+              Source='knot3d.exe' Vital='yes'>
             </File>
-            <RemoveFile Id='Settings' On='uninstall' Name='.knot.xml' />
+            <RemoveFile Id='Settings' On='uninstall' Name='.knot3d.xml' />
           </Component>
 
           <Directory Id='KnotExamplesFolder' Name='examples'>
@@ -44,7 +44,7 @@
           </Directory>
 
           <Component Id='StartMenuShortcuts' Guid='A9CE5353-BEA4-4706-87B8-035985AB7441'>
-            <Shortcut Id="StartMenuKnot" Directory="ProgramMenuDir" Name="Knot" 
+            <Shortcut Id="StartMenuKnot" Directory="ProgramMenuDir" Name="Knot3D" 
               WorkingDirectory='INSTALLDIR'
               Target="[!KnotEXE]"
               Icon="knot.ico" IconIndex="0" />
@@ -55,7 +55,7 @@
           </Component>
 
           <Component Id='DesktopShortcuts' Guid='616B5ACC-4B02-4225-A291-0CEDFFF9BE20'>
-            <Shortcut Id="DesktopKnot" Directory="DesktopFolder" Name="Knot" 
+            <Shortcut Id="DesktopKnot" Directory="DesktopFolder" Name="Knot3D" 
               WorkingDirectory='INSTALLDIR'
               Target="[!KnotEXE]"
               Icon="knot.ico" IconIndex="0" />
@@ -88,13 +88,13 @@
       </Directory>
 
       <Directory Id="ProgramMenuFolder" Name="Programs">
-        <Directory Id="ProgramMenuDir" Name='Knot' />
+        <Directory Id="ProgramMenuDir" Name='Knot3D' />
       </Directory>
 
       <Directory Id="DesktopFolder" Name="Desktop" />
     </Directory>
 
-    <Feature Id='Complete' Title="Knot" Description="The Celtic Knot 2D and 3D Celtic knot rendering package" Display="expand" Level='1' ConfigurableDirectory='INSTALLDIR'>
+    <Feature Id='Complete' Title="Knot3D" Description="The Celtic Knot 2D and 3D Celtic knot rendering package" Display="expand" Level='1' ConfigurableDirectory='INSTALLDIR'>
       <Feature Id='MainProgram' Title="Program" Description="The main executable" Level='1'>
         <ComponentRef Id='MainExecutable' />
         <ComponentRef Id='KnotAssets' />

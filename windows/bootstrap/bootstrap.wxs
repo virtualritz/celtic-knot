@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 	<Bundle 
-		Name="3D Celtic Knot Installer" 
+		Name="Knot3D Celtic Knot Installer" 
 		Manufacturer="David Llewellyn-Jones" 
 		Version="$(env.productversion)" 
 		UpgradeCode="B43A728E-4876-44C9-94A7-9799C0AAC4A3"
@@ -12,8 +12,8 @@
 	<WixVariable Id="WixStdbaLogo" Value="knot48.png" />
 	<Chain>
 		<MsiPackage 
-			Id="Knot" 
-			SourceFile="..\..\knot-$(env.productversion)-win32-bin.msi" 
+			Id="Knot3D" 
+			SourceFile="..\..\knot3d-$(env.productversion)-win32-bin.msi" 
 			DisplayInternalUI="no" 
 			Vital="yes" 
 			Compressed="yes" 
