@@ -3,29 +3,40 @@ Quick instructions
 
 Under Linux
 
-1. Generate configure scripts:
+1. Install dependencies. This'll depend on your system, but for me on Ubuntu it requires the following:
+
+sudo apt-get install autoconf
+sudo apt-get install libgtkglext1-dev
+sudo apt-get install glee-dev
+sudo apt-get install freeglut3-dev
+sudo apt-get install libglu1-mesa-dev
+sudo apt-get install libzip-dev
+sudo apt-get install libglade2-dev 
+sudo apt-get install libxml2-dev
+
+2. Generate configure scripts:
 
 autoreconf --install
 
-2. Generate makefiles:
+3. Generate makefiles:
 
 ./configure
 
-3. Build application:
+4. Build application:
 
 make
 
-4. Install application (usually has to be done as root):
+5. Install application (usually has to be done as root):
 
 sudo make install
 
-5. Run the application:
+6. Run the application:
 
 ./knot
 
-6. To create the debian package:
+7. To create the debian package:
 
-debuild
+debuild -b --lintian-opts -X changes-file
 
 Under Windows
 
